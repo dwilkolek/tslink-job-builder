@@ -1,3 +1,4 @@
+import { Transform, Readable, Writable } from "stream";
 export interface SinkDescription {
-    write: (data: Buffer, encoding: string, done: () => void) => void;
+    get: () => Writable;
 }

@@ -1,3 +1,4 @@
+import { Transform, Readable, Writable } from "stream";
 export interface SourceDescription {
-    produce: () => Buffer;
+    get: () => Readable;
 }

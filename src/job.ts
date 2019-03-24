@@ -1,46 +1,43 @@
-var kafka = require('kafka-node');
-class JobDefinition {
-    keys: string[] = [];
-    name = 'jobs1';
-    sources = {
-        sources1: {
-            produce: () => {
-                console.log('kafka', kafka.Producer);
-                const kafkaProducer = kafka.Producer;
-                Object.keys(kafkaProducer).forEach(key => {
-                    this.keys.push(key);
-                })
-                return Buffer.from(Math.random().toString());
-            }
-        }
+import { JobDefinitionInterface } from "./types/job-definition-interface";
+import { Readable, Writable, Transform } from "stream";
+import { Transformers } from "./transformers";
+import { ReadableStream } from "./readable-stream";
 
-    };
-    sinks = {
-        s3: {
-            write: function (data: any, encoding: any, done: any) {
-                done();
+var fs = require('fs');
+var es = require('event-stream');
+module Job {
+    class JobDefinition implements JobDefinitionInterface {
+
+        keys: string[] = [];
+        name = 'jobs1';
+        sources = {
+            sources1: {
+                get: () => new ReadableStream()
+
             }
-        }
-    };
-    transformers = {
-        s2: {
-            transform: function (data: any, encoding: any) {
-                var num = parseFloat(data.toString());
-                return Math.random() > 0.5 ? Buffer.from((num * 10) + 'asdasdsa') : undefined;
+        };
+        sinks = {
+            s3: {
+                get: () => <Writable>fs.createWriteStream('output.json')
             }
-        }
-    };
-    connections = [{
-        from: 'sources1',
-        to: {
-            name: 's2',
+        };
+        transformers = {
+            s2: {
+                get: () => new Transformers()
+            }
+        };
+        connections = [{
+            from: 'sources1',
             to: {
-                name: 's3'
+                name: 's2',
+                to: {
+                    name: 's3'
+                }
             }
-        }
-    }];
-}
+        }];
+    }
 
-export default function() {
-    return new JobDefinition();
+    module.exports.default = () => {
+        return new JobDefinition();
+    }
 }
