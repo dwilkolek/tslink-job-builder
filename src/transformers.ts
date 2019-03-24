@@ -9,7 +9,7 @@ export class Transformers extends Transform {
                     obj[k] = obj[k] + " - transformed";
                 }
                 if (typeof obj[k] == 'number') {
-                    obj[k] = obj[k]*100;
+                    obj[k] = obj[k] + '1';
                 }
                 
             });

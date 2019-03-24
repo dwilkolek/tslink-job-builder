@@ -6,7 +6,10 @@ export class ReadableStream extends Readable {
 
     lastLine: any = undefined;
     lineNr = 0;
-    s = fs.createReadStream('file.json')
+    s:any = null;
+    constructor(path:any) {
+        super();
+        this.s = fs.createReadStream(path)
         .pipe(es.split())
         .pipe(es.mapSync((line: any) => {
             this.s.pause();
@@ -24,6 +27,8 @@ export class ReadableStream extends Readable {
                 console.log('Read entire file.')
             })
         );
+    }
+    
 
     _read(size: number) {
         this.s.resume();

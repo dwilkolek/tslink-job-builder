@@ -11,6 +11,8 @@ gulp.task('scripts', function () {
 
 gulp.task('zip', () =>
     gulp.src('dist/**/*')
-        .pipe(zip('archive.zip'))
+        .pipe(zip('job.zip'))
         .pipe(gulp.dest('dist'))
 );
+
+gulp.task('default', gulp.series(['scripts', 'zip']))

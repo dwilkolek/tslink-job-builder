@@ -1,0 +1,12 @@
+{   
+    "name":"batch-config",
+    "jobParams": {
+        "from": "D:\\dev\\bigJSON\\file.json",
+        "to": "./file.json",
+        "output": "batch.json"
+    },
+    "deleteWorkspaceOnFinish": false,
+    "deleteWorkspaceOnError": false,
+    "recoverOnFail": true,
+    "entryFile": "batch-job.js"
+}

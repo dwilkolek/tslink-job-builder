@@ -1,0 +1,12 @@
+{   
+    "name":"streaming-config",
+    "jobParams": {
+        "from": "D:\\dev\\bigJSON\\file.json",
+        "to": "./file.json",
+        "output": "stream.json"
+    },
+    "deleteWorkspaceOnFinish": true,
+    "deleteWorkspaceOnError": false,
+    "recoverOnFail": false,
+    "entryFile": "streaming-job.js"
+}
