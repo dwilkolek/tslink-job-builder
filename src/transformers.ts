@@ -3,7 +3,6 @@ export class Transformers extends Transform {
 
     _transform(chunk: any, encoding: string, done: import("stream").TransformCallback): void {
         setImmediate(() => {
-            console.log(chunk.toString());
             const obj = JSON.parse(chunk.toString());
             Object.keys(obj).forEach(k => {
                 if (typeof obj[k] == 'string') {
