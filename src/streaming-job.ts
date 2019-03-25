@@ -1,4 +1,4 @@
-import { JobDefinitionInterface } from "./types/job-definition-interface";
+import { JobDefinition } from "./types/job-definition";
 import { Readable, Writable, Transform } from "stream";
 import { Transformers } from "./transformers";
 import { ReadableStream } from "./readable-stream";
@@ -9,8 +9,13 @@ const fsPromises = require('fs').promises;
 const path = require('path');
 var es = require('event-stream');
 
-module StreamingJob {
-    class JobDefinition implements JobDefinitionInterface {
+module StreamingJobModule {
+    class StreamingJob implements JobDefinition {
+
+
+        constructor(config: JobConfig, workspace: string) {
+
+        }
 
         beforeProcessing = (config: JobConfig, workspace: string, done: () => void) => {
             fsPromises.copyFile(config.jobParams['from'], path.join(workspace, config.jobParams['to']))
@@ -22,8 +27,10 @@ module StreamingJob {
                     console.log(`err: ${config.jobParams['from']} was not copied to ${path.join(workspace, config.jobParams['to'])}`)
                 });
         };
-
-        _isDone = false;
+        afterProcessing = (config: JobConfig, workspace: string, done:() => void) => {
+            done();
+        }
+        
         keys: string[] = [];
         name = 'jobs1';
         sources = {
@@ -51,12 +58,9 @@ module StreamingJob {
                 }
             }
         }];
-        isDone = () => {
-            return this._isDone;
-        }
     }
 
-    module.exports.default = () => {
-        return new JobDefinition();
+    module.exports.default = (config: JobConfig, workspace:string) => {
+        return new StreamingJob(config, workspace);
     }
 }

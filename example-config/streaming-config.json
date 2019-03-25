@@ -5,7 +5,7 @@
         "to": "./file.json",
         "output": "stream.json"
     },
-    "deleteWorkspaceOnFinish": true,
+    "deleteWorkspaceOnFinish": false,
     "deleteWorkspaceOnError": false,
     "recoverOnFail": false,
     "entryFile": "streaming-job.js"

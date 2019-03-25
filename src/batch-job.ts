@@ -1,9 +1,8 @@
-import { JobDefinitionInterface } from "./types/job-definition-interface";
+import { JobDefinition } from "./types/job-definition";
 import { Readable, Writable, Transform } from "stream";
 import { Transformers } from "./transformers";
 import { ReadableStream } from "./readable-stream";
 import { JobConfig } from "./types/job-config";
-import { isDate } from "util";
 
 var fs = require('fs');
 const fsPromises = require('fs').promises;
@@ -11,33 +10,31 @@ const path = require('path');
 var es = require('event-stream');
 
 module BatchJob {
-    class JobDefinition implements JobDefinitionInterface {
-
-        constructor() {
+    class JobDefinition implements JobDefinition {
+        readStr: Readable;
+        constructor(config: JobConfig, workspace: string) {
+            this.readStr = new ReadableStream(path.join(workspace, config.jobParams['to']));
             setTimeout(() => {
-                console.log('setting is done')
-                this._isDone = true;
-            }, 60000)
+                this.readStr.push(null)
+            }, 10000)
         }
 
-        beforeProcessing = (config: JobConfig, workspace: string, done: () => void) => {
-            fsPromises.copyFile(config.jobParams['from'], path.join(workspace, config.jobParams['to']))
-                .then(() => {
-                    console.log(`suc: ${config.jobParams['from']} was copied to ${path.join(workspace, config.jobParams['to'])}`);
-                    done();
-                })
-                .catch(() => {
-                    console.log(`err: ${config.jobParams['from']} was not copied to ${path.join(workspace, config.jobParams['to'])}`)
-                });
-        };
+        timeout: any;
 
+        beforeProcessing = (config: JobConfig, workspace: string, done: () => void) => {
+            console.log('beforeProcessing')
+            done();
+        };
+        afterProcessing = (config: JobConfig, workspace: string, done: () => void) => {
+            console.log('afterProcessing')
+            done();
+        }
         _isDone = false;
         keys: string[] = [];
         name = 'jobs1';
         sources = {
             sources1: {
-                get: (config: JobConfig, workspace: string) => new ReadableStream(path.join(workspace, config.jobParams['to']))
-
+                get: (config: JobConfig, workspace: string) => this.readStr
             }
         };
         sinks = {
@@ -59,13 +56,28 @@ module BatchJob {
                 }
             }
         }];
-        isDone = () => {
-            console.log('isDone?', this._isDone);
-            return this._isDone;
-        }
     }
 
-    module.exports.default = () => {
-        return new JobDefinition();
+
+    module.exports.beforeCreate = (config: JobConfig, workspace: string, done: () => void) => {
+        console.log('beforeCreation');
+        fsPromises.copyFile(config.jobParams['from'], path.join(workspace, config.jobParams['to']))
+            .then(() => {
+                console.log(`suc: ${config.jobParams['from']} was copied to ${path.join(workspace, config.jobParams['to'])}`);
+                done();
+            })
+            .catch(() => {
+                console.log(`err: ${config.jobParams['from']} was not copied to ${path.join(workspace, config.jobParams['to'])}`);
+                done();
+            });
     }
+
+    module.exports.default = (config: JobConfig, workspace: string) => {
+        console.log('default');
+        return new JobDefinition(config, workspace);
+    }
+    module.exports.afterDestroy = (config: JobConfig, workspace: string) => new Promise(resolve => {
+        console.log('afterDestroy');
+        resolve();
+    })
 }

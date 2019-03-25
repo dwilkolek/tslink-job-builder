@@ -23,12 +23,15 @@ export class ReadableStream extends Readable {
             .on('error', function (err: any) {
                 console.log('Error while reading file.', err);
             })
-            .on('end', function () {
-                console.log('Read entire file.')
+            .on('end', () => {
+                this.s.push(null);
             })
         );
     }
     
+    close() {
+        this.s.close();
+    }
 
     _read(size: number) {
         this.s.resume();
