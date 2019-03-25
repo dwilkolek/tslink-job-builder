@@ -29,7 +29,7 @@ module BatchJob {
             console.log('afterProcessing')
             done();
         }
-        _isDone = false;
+        
         keys: string[] = [];
         name = 'jobs1';
         sources = {

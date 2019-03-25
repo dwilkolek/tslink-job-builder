@@ -23,8 +23,8 @@ module StreamingJobModule {
                     console.log(`suc: ${config.jobParams['from']} was copied to ${path.join(workspace, config.jobParams['to'])}`);
                     done();
                 })
-                .catch(() => {
-                    console.log(`err: ${config.jobParams['from']} was not copied to ${path.join(workspace, config.jobParams['to'])}`)
+                .catch((e:any) => {
+                    console.log(`err: ${config.jobParams['from']} was not copied to ${path.join(workspace, config.jobParams['to'])}`, e)
                 });
         };
         afterProcessing = (config: JobConfig, workspace: string, done:() => void) => {
