@@ -1,4 +1,4 @@
-export interface JobDefinitionDBO {
-    _id?: string,
-    name: string
+export interface IJobDefinitionDBO {
+    _id?: string;
+    name: string;
 }

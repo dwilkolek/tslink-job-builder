@@ -1,19 +1,18 @@
-import { JobDefinition } from "./types/job-definition";
 import { Readable, Writable, Transform } from "stream";
 import { Transformers } from "./transformers";
 import { ReadableStream } from "./readable-stream";
-import { JobConfig } from "./types/job-config";
-
+import { JobContext } from "./types/job-context";
+import { IJobDefinition } from "./types/job-definition";
 var fs = require('fs');
 const fsPromises = require('fs').promises;
 const path = require('path');
 var es = require('event-stream');
 
-module BatchJob {
-    class JobDefinition implements JobDefinition {
+module BatchModule {
+    class BatchJob implements IJobDefinition {
         readStr: Readable;
-        constructor(config: JobConfig, workspace: string) {
-            this.readStr = new ReadableStream(path.join(workspace, config.jobParams['to']));
+        constructor(context: JobContext) {
+            this.readStr = new ReadableStream(path.join(context.workspaceDirectory, context.jobConfig.jobParams['to']));
             setTimeout(() => {
                 this.readStr.push(null)
             }, 10000)
@@ -21,11 +20,11 @@ module BatchJob {
 
         timeout: any;
 
-        beforeProcessing = (config: JobConfig, workspace: string, done: () => void) => {
+        beforeProcessing = (context: JobContext, done: () => void) => {
             console.log('beforeProcessing')
             done();
         };
-        afterProcessing = (config: JobConfig, workspace: string, done: () => void) => {
+        afterProcessing = (context: JobContext, done: () => void) => {
             console.log('afterProcessing')
             done();
         }
@@ -34,12 +33,12 @@ module BatchJob {
         name = 'jobs1';
         sources = {
             sources1: {
-                get: (config: JobConfig, workspace: string) => this.readStr
+                get: (context: JobContext) => this.readStr
             }
         };
         sinks = {
             s3: {
-                get: (config: JobConfig, workspace: string) => <Writable>fs.createWriteStream(path.join(workspace, config.jobParams['output']))
+                get: (context: JobContext) => <Writable>fs.createWriteStream(path.join(context.workspaceDirectory, context.jobConfig.jobParams['output']))
             }
         };
         transformers = {
@@ -59,24 +58,24 @@ module BatchJob {
     }
 
 
-    module.exports.beforeCreate = (config: JobConfig, workspace: string, done: () => void) => {
+    module.exports.beforeCreate = (context: JobContext, done: () => void) => {
         console.log('beforeCreation');
-        fsPromises.copyFile(config.jobParams['from'], path.join(workspace, config.jobParams['to']))
+        fsPromises.copyFile(context.jobConfig.jobParams['from'], path.join(context.workspaceDirectory, context.jobConfig.jobParams['to']))
             .then(() => {
-                console.log(`suc: ${config.jobParams['from']} was copied to ${path.join(workspace, config.jobParams['to'])}`);
+                console.log(`suc: ${context.jobConfig.jobParams['from']} was copied to ${path.join(context.workspaceDirectory, context.jobConfig.jobParams['to'])}`);
                 done();
             })
             .catch(() => {
-                console.log(`err: ${config.jobParams['from']} was not copied to ${path.join(workspace, config.jobParams['to'])}`);
+                console.log(`err: ${context.jobConfig.jobParams['from']} was not copied to ${path.join(context.workspaceDirectory, context.jobConfig.jobParams['to'])}`);
                 done();
             });
     }
 
-    module.exports.default = (config: JobConfig, workspace: string) => {
+    module.exports.default = (context: JobContext) => {
         console.log('default');
-        return new JobDefinition(config, workspace);
+        return new BatchJob(context);
     }
-    module.exports.afterDestroy = (config: JobConfig, workspace: string) => new Promise(resolve => {
+    module.exports.afterDestroy = (context: JobContext) => new Promise(resolve => {
         console.log('afterDestroy');
         resolve();
     })

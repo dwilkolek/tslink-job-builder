@@ -1,15 +1,15 @@
-import { Connection } from "./connection";
-import { SourceDescription } from "./source-description";
-import { TransformDescription } from "./transform-descriptions";
-import { SinkDescription } from "./sink-description";
-import { JobConfig } from "./job-config";
+import { IConnection } from './connection';
+import { JobContext } from './job-context';
+import { ISinkDescription } from './sink-description';
+import { ISourceDescription } from './source-description';
+import { ITransformDescription } from './transform-descriptions';
 
-export interface JobDefinition {
-    name: string
-    connections: Connection[]
-    sources: { [key: string]: SourceDescription }
-    transformers: { [key: string]: TransformDescription }
-    sinks: { [key: string]: SinkDescription }
-    beforeProcessing: (config: JobConfig, workspace: string, done: () => void) => void;
-    afterProcessing: (config: JobConfig, workspace: string, done: () => void) => void;
+export interface IJobDefinition {
+    name: string;
+    connections: IConnection[];
+    sources: { [key: string]: ISourceDescription };
+    transformers: { [key: string]: ITransformDescription };
+    sinks: { [key: string]: ISinkDescription };
+    beforeProcessing: (jobContext: JobContext, done: () => void) => void;
+    afterProcessing: (jobContext: JobContext, done: () => void) => void;
 }
