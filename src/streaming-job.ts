@@ -1,13 +1,15 @@
 import { IJobDefinition } from "./types/job-definition";
 import { Readable, Writable, Transform } from "stream";
-import { Transformers } from "./transformers";
-import { ContReadableStream } from "./cont-readable-stream";
+import { ContinoiusReadableStream } from "./stream-impl/contious-readable-stream";
 import { JobContext } from "./types/job-context";
+import { WritableStreamWithStoreOffset } from "./stream-impl/writable-stream-with-store-offset";
+import { TransformingStream } from "./stream-impl/transforming-stream";
 
 var fs = require('fs');
 const path = require('path');
 
 module StreamingJobModule {
+    
     class StreamingJob implements IJobDefinition {
 
 
@@ -16,6 +18,7 @@ module StreamingJobModule {
         }
 
         beforeProcessing = (context: JobContext, done: () => void) => {
+            console.log(`Starting from offset: ${context.currentOffset}`);
             done();
         };
         afterProcessing = (context: JobContext, done: () => void) => {
@@ -26,18 +29,18 @@ module StreamingJobModule {
         name = 'jobs1';
         sources = {
             sources1: {
-                get: (context: JobContext) => new ContReadableStream()
+                get: (context: JobContext) => new ContinoiusReadableStream()
 
             }
         };
         sinks = {
             s3: {
-                get: (context: JobContext) => <Writable>fs.createWriteStream(path.join(context.workspaceDirectory, context.jobConfig.jobParams['output']))
+                get: (context: JobContext) => new WritableStreamWithStoreOffset(context)
             }
         };
         transformers = {
             s2: {
-                get: () => new Transformers()
+                get: () => new TransformingStream()
             }
         };
         connections = [{
@@ -49,6 +52,9 @@ module StreamingJobModule {
                 }
             }
         }];
+        progress = () => {
+            return -1;
+        }
     }
 
     module.exports.default = (context: JobContext) => {

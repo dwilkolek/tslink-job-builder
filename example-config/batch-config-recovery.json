@@ -1,0 +1,12 @@
+{   
+    "name":"batch-config-recovery",
+    "jobParams": {
+        "from": "D:\\dev\\bigJSON\\file.json",
+        "to": "./medium.json",
+        "output": "batch.json"
+    },
+    "deleteWorkspaceOnFinish": false,
+    "deleteWorkspaceOnError": false,
+    "recoverOnFail": true,
+    "entryFile": "batch-file-job.js"
+}

@@ -1,5 +1,5 @@
 {   
-    "name":"streaming-config",
+    "name":"streaming-config-recovery",
     "jobParams": {
         "from": "D:\\dev\\bigJSON\\file.json",
         "to": "./file.json",
@@ -7,6 +7,6 @@
     },
     "deleteWorkspaceOnFinish": false,
     "deleteWorkspaceOnError": false,
-    "recoverOnFail": false,
+    "recoverOnFail": true,
     "entryFile": "streaming-job.js"
 }
