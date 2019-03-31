@@ -29,7 +29,7 @@ module StreamingJobModule {
         name = 'jobs1';
         sources = {
             sources1: {
-                get: (context: JobContext) => new ContinoiusReadableStream()
+                get: (context: JobContext) => new ContinoiusReadableStream(context)
 
             }
         };
@@ -40,7 +40,7 @@ module StreamingJobModule {
         };
         transformers = {
             s2: {
-                get: () => new TransformingStream()
+                get: (context: JobContext) => new TransformingStream(context)
             }
         };
         connections = [{

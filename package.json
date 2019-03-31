@@ -21,5 +21,7 @@
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "event-stream": "^4.0.1"
+  }
 }

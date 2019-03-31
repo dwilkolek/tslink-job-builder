@@ -44,7 +44,7 @@ module BatchFileModule {
         };
         transformers = {
             s2: {
-                get: () => new TransformingStream()
+                get: (context: JobContext) => new TransformingStream(context)
             }
         };
         connections = [{

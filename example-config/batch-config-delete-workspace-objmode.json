@@ -1,0 +1,13 @@
+{   
+    "name":"batch-config-no-recovery-delete-worspace",
+    "jobParams": {
+        "from": "D:\\dev\\bigJSON\\file.json",
+        "to": "./medium.json",
+        "output": "batch.json"
+    },
+    "deleteWorkspaceOnFinish": true,
+    "deleteWorkspaceOnError": true,
+    "recoverOnFail": false,
+    "entryFile": "batch-file-job.js",
+    "objectMode": true
+}
