@@ -2,25 +2,25 @@ import { Transform } from "stream";
 import { JobContext } from "../types/job-context";
 export class TransformingStream extends Transform {
 
-    constructor(private context: JobContext) {
+    constructor(private context: JobContext, private isAdd: boolean) {
         super({ highWaterMark: 1, objectMode: context.jobConfig.objectMode })
     }
 
     _transform(chunk: any, encoding: string, done: import("stream").TransformCallback): void {
         console.log(chunk, this.context.jobConfig.objectMode)
-        
+
         if (this.context.jobConfig.objectMode) {
-            console.log( Object.keys(chunk));
-            Object.keys(chunk).forEach(k => {
-                if (typeof chunk[k] == 'string') {
-                    chunk[k] = chunk[k] + " - transformed";
+            const copy: any = JSON.parse(JSON.stringify(chunk))
+            Object.keys(copy).forEach(k => {
+                if (typeof copy[k] == 'string') {
+                    copy[k] = copy[k] + " - transformed";
                 }
                 if (typeof chunk[k] == 'number') {
-                    chunk[k] = chunk[k] + 1;
+                    copy[k] = this.isAdd ? copy[k] + 1 : copy[k] - 1;
                 }
             });
-            console.log('transformed', chunk)
-            done(null, chunk)
+            console.log('transformed', copy)
+            done(null, copy)
         } else {
             const lineschunk = chunk.toString();
             console.log('chunk ', chunk)
@@ -35,7 +35,7 @@ export class TransformingStream extends Transform {
                             obj[k] = obj[k] + " - transformed";
                         }
                         if (typeof obj[k] == 'number') {
-                            obj[k] = obj[k] + 1;
+                            obj[k] = this.isAdd ? obj[k] + 1 : obj[k] - 1;
                         }
 
                     });

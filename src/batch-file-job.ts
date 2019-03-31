@@ -37,24 +37,44 @@ module BatchFileModule {
             }
         };
         sinks = {
-            s3: {
-                //get: (context: JobContext) => <Writable>fs.createWriteStream(path.join(context.workspaceDirectory, context.jobConfig.jobParams['output']))
+            sink1: {
+                get: (context: JobContext) => new WritableStreamWithStoreOffset(context)
+            },
+            sink2: {
+                get: (context: JobContext) => new WritableStreamWithStoreOffset(context)
+            },
+            sink3: {
                 get: (context: JobContext) => new WritableStreamWithStoreOffset(context)
             }
         };
         transformers = {
-            s2: {
-                get: (context: JobContext) => new TransformingStream(context)
+            transformer1: {
+                get: (context: JobContext) => new TransformingStream(context, true)
+            },
+            transformer2: {
+                get: (context: JobContext) => new TransformingStream(context, false)
             }
         };
         connections = [{
             from: 'sources1',
-            to: {
-                name: 's2',
-                to: {
-                    name: 's3'
+            to: [
+                {
+                    name: 'transformer1',
+                    to: [{
+                        name: 'sink1'
+                    }, {
+                        name: 'sink2'
+                    }]
+                },
+                {
+                    name: 'transformer2',
+                    to: [{
+                        name: 'sink2'
+                    }, {
+                        name: 'sink3'
+                    }]
                 }
-            }
+            ]
         }];
         progress = () => {
             console.log('return progress', (this.readStr as BatchReadableStream).getProgress())
