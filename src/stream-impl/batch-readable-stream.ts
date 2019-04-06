@@ -1,14 +1,12 @@
 import { Readable } from "stream";
 import { JobContext } from "../types/job-context";
 const fs = require('fs');
-
-var es = require('event-stream');
 export class BatchReadableStream extends Readable {
 
     elementsCount = 0;
 
     constructor(private context: JobContext) {
-        super({ highWaterMark: 1, objectMode: context.jobConfig.objectMode });
+        super({ highWaterMark: 1, objectMode: true });
         if (context.currentOffset) {
             this.elementsCount = context.currentOffset;
         }
@@ -16,25 +14,17 @@ export class BatchReadableStream extends Readable {
 
     _read(size: number) {
 
-        if (this.elementsCount == 1000) {
-            this.push(null)
+        if (this.elementsCount >= 10000000) {
+            this.push(null);
         } else {
             this.elementsCount++;
-            this.pause();
-            setTimeout(() => {
-                if (this.context.jobConfig.objectMode) {
-                    this.push({ name: "janobj", age: Math.round(Math.random() * 100) });
-                } else {
-                    this.push(JSON.stringify({ name: "janstr", age: Math.round(Math.random() * 100) }));
-                }
-                this.resume();
-            }, 500);
+            this.push({ id: this.elementsCount, name: "janobj", age: Math.round(Math.random() * 100) });
 
         }
     }
 
     getProgress() {
-        return this.elementsCount * 100 / 1000;
+        return this.elementsCount * 100 / 10000000;
     }
 
 

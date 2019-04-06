@@ -13,20 +13,25 @@ var es = require('event-stream');
 module BatchFileModule {
     class BatchFileJob implements IJobDefinition {
         readStr: Readable;
+        mainWriter: WritableStreamWithStoreOffset;
         constructor(context: JobContext) {
             //line-by-line path.join(context.workspaceDirectory, context.jobConfig.jobParams['to'])
             this.readStr = new BatchReadableStream(context);
+            
+            this.mainWriter = new WritableStreamWithStoreOffset(context)
         }
 
         timeout: any;
-
+        progressCached = 0;
         beforeProcessing = (context: JobContext, done: () => void) => {
             console.log('beforeProcessing')
             done();
         };
         afterProcessing = (context: JobContext, done: () => void) => {
             console.log('afterProcessing')
-            done();
+            this.mainWriter.storeOffset(() => {
+                done();
+            })            
         }
 
         keys: string[] = [];
@@ -41,7 +46,7 @@ module BatchFileModule {
                 get: (context: JobContext) => new WritableStreamWithStoreOffset(context)
             },
             sink2: {
-                get: (context: JobContext) => new WritableStreamWithStoreOffset(context)
+                get: (context: JobContext) => this.mainWriter
             },
             sink3: {
                 get: (context: JobContext) => new WritableStreamWithStoreOffset(context)
@@ -76,10 +81,6 @@ module BatchFileModule {
                 }
             ]
         }];
-        progress = () => {
-            console.log('return progress', (this.readStr as BatchReadableStream).getProgress())
-            return (this.readStr as BatchReadableStream).getProgress();
-        }
     }
 
 
@@ -102,8 +103,4 @@ module BatchFileModule {
         console.log('default');
         return new BatchFileJob(context);
     }
-    module.exports.afterDestroy = (context: JobContext) => new Promise(resolve => {
-        console.log('afterDestroy');
-        resolve();
-    })
 }

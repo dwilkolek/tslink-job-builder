@@ -3,12 +3,10 @@ import { JobContext } from "../types/job-context";
 export class TransformingStream extends Transform {
 
     constructor(private context: JobContext, private isAdd: boolean) {
-        super({ highWaterMark: 1, objectMode: context.jobConfig.objectMode })
+        super({ highWaterMark: 100, objectMode: context.jobConfig.objectMode })
     }
 
     _transform(chunk: any, encoding: string, done: import("stream").TransformCallback): void {
-        console.log(chunk, this.context.jobConfig.objectMode)
-
         if (this.context.jobConfig.objectMode) {
             const copy: any = JSON.parse(JSON.stringify(chunk))
             Object.keys(copy).forEach(k => {
@@ -19,12 +17,9 @@ export class TransformingStream extends Transform {
                     copy[k] = this.isAdd ? copy[k] + 1 : copy[k] - 1;
                 }
             });
-            console.log('transformed', copy)
             done(null, copy)
         } else {
             const lineschunk = chunk.toString();
-            console.log('chunk ', chunk)
-            console.log('chunk!', chunk.toString())
             const lines = lineschunk.split('\r\n');
             const end: string[] = [];
             lines.forEach((line: string) => {
@@ -39,7 +34,6 @@ export class TransformingStream extends Transform {
                         }
 
                     });
-                    console.log('transformed', line, '-->', obj)
                     end.push(obj);
                 } catch (e) {
 

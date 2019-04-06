@@ -22,6 +22,7 @@
     "webpack-cli": "^3.3.0"
   },
   "dependencies": {
-    "event-stream": "^4.0.1"
+    "event-stream": "^4.0.1",
+    "syncthrough": "^0.5.0"
   }
 }

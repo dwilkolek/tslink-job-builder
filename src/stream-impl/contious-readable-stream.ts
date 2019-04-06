@@ -4,16 +4,15 @@ const fs = require('fs');
 
 var es = require('event-stream');
 export class ContinoiusReadableStream extends Readable {
-
+    offset = 0;
     constructor(private context: JobContext) {
-        super({highWaterMark:1, objectMode: context.jobConfig.objectMode})
+        super({ highWaterMark: 10, objectMode: true })
+        if (context.currentOffset) {
+            this.offset = context.currentOffset;
+        }
     }
     _read(size: number) {
-        if (this.context.jobConfig.objectMode) {
-            this.push({name:"damian", age:Math.round(Math.random()*100)});
-        } else {
-            this.push(JSON.stringify({name:"damian", age:Math.round(Math.random()*100)}));
-        }
+        this.push({ id: this.offset, name: "damian", age: Math.round(Math.random() * 100) });
     }
 
 
