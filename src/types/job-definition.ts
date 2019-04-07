@@ -6,7 +6,6 @@ import { ITransformDescription } from './transform-descriptions';
 
 export interface IJobDefinition {
     name: string;
-    connections: IConnection[];
     sources: { [key: string]: ISourceDescription };
     transformers: { [key: string]: ITransformDescription };
     sinks: { [key: string]: ISinkDescription };

@@ -13,8 +13,9 @@ export class BatchReadableStream extends Readable {
     };
 
     _read(size: number) {
+        this.context.storeProgress(this.getProgress())
 
-        if (this.elementsCount >= 10000000) {
+        if (this.elementsCount >= 500000) {
             this.push(null);
         } else {
             this.elementsCount++;
@@ -24,7 +25,7 @@ export class BatchReadableStream extends Readable {
     }
 
     getProgress() {
-        return this.elementsCount * 100 / 10000000;
+        return this.elementsCount * 100 / 500000;
     }
 
 

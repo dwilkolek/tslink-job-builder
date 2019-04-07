@@ -18,7 +18,7 @@ module BatchFileModule {
             //line-by-line path.join(context.workspaceDirectory, context.jobConfig.jobParams['to'])
             this.readStr = new BatchReadableStream(context);
             
-            this.mainWriter = new WritableStreamWithStoreOffset(context)
+            this.mainWriter = new WritableStreamWithStoreOffset(context, 500000)
         }
 
         timeout: any;
@@ -43,44 +43,49 @@ module BatchFileModule {
         };
         sinks = {
             sink1: {
-                get: (context: JobContext) => new WritableStreamWithStoreOffset(context)
+                get: (context: JobContext) => new WritableStreamWithStoreOffset(context),
+                readFrom: ['transformer1']
             },
             sink2: {
-                get: (context: JobContext) => this.mainWriter
+                get: (context: JobContext) => this.mainWriter,
+                readFrom: ['transformer1', 'transformer2']
             },
             sink3: {
-                get: (context: JobContext) => new WritableStreamWithStoreOffset(context)
+                get: (context: JobContext) => new WritableStreamWithStoreOffset(context),
+                readFrom: ['transformer2']
             }
         };
         transformers = {
             transformer1: {
-                get: (context: JobContext) => new TransformingStream(context, true)
+                get: (context: JobContext) => new TransformingStream(context, true),
+                readFrom: ['sources1']
             },
             transformer2: {
-                get: (context: JobContext) => new TransformingStream(context, false)
+                get: (context: JobContext) => new TransformingStream(context, false),
+                readFrom: ['sources1']
             }
         };
-        connections = [{
-            from: 'sources1',
-            to: [
-                {
-                    name: 'transformer1',
-                    to: [{
-                        name: 'sink1'
-                    }, {
-                        name: 'sink2'
-                    }]
-                },
-                {
-                    name: 'transformer2',
-                    to: [{
-                        name: 'sink2'
-                    }, {
-                        name: 'sink3'
-                    }]
-                }
-            ]
-        }];
+        // connections = [{
+        //     from: 'sources1',
+        //     to: [
+        //         {
+        //             name: 'transformer1',
+        //             to: [{
+        //                 name: 'sink1'
+        //             }, {
+        //                 name: 'sink2'
+        //             }]
+        //         },
+        //         {
+        //             name: 'transformer2',
+        //             to: [{
+        //                 name: 'sink2'
+        //             }, {
+        //                 name: 'sink3'
+        //             }]
+        //         }
+        //     ]
+        // }];
     }
 
 
