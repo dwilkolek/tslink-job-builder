@@ -1,4 +1,3 @@
-import { IConnection } from './connection';
 import { JobContext } from './job-context';
 import { ISinkDescription } from './sink-description';
 import { ISourceDescription } from './source-description';
